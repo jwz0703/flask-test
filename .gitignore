@@ -1,0 +1,11 @@
+# Python 快取
+__pycache__/
+*.py[cod]
+
+# 虛擬環境
+venv/
+.env
+
+# 作業系統雜物
+.DS_Store
+Thumbs.db

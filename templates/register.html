@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/codedgar/Puppertino@latest/dist/css/newfull.css">
+    <title>Document</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body, .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+        }
+        body {
+            min-height: 100dvh;
+            margin: 0px;
+        }
+        .container {
+            background: #e4e4e4;
+        }
+    </style>
+</head>
+<body>
+    
+    <form class="container" method="post">
+
+        <h2>REGISTER</h2>
+        <input class="p-form-text p-form-invalid" name="username" placeholder="帳號">
+        <input class="p-form-text p-form-invalid" name="password" placeholder="密碼">
+        <div>
+            <button class="p-btn" type="submit">送出</button>
+            <button class="p-btn" type="reset">重置</button>
+        </div>
+        
+        
+    </form>
+</body>
+</html>
