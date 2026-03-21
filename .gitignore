@@ -1,7 +1,7 @@
 # Python 快取
 __pycache__/
 *.py[cod]
-
+*.pyc
 # 虛擬環境
 venv/
 .env

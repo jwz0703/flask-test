@@ -7,9 +7,7 @@ from google.genai import types
 
 
 def generate():
-    client = genai.Client(
-        api_key="AIzaSyAU7rBF346HfUzgQtHyqV0mFC8FpRFbVy8",
-    )
+    client = genai.Client()
 
     model = "gemini-3-flash-preview"
     contents = [

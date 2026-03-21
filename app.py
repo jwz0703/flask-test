@@ -6,7 +6,9 @@ def get_db():
     conn = sqlite3.connect('users.db')
     conn.row_factory = sqlite3.Row
     return conn
-
+@app.route('/')
+def home():
+    return render_template('home.html')
 @app.route('/register',methods = ['GET','POST'])
 def register():
     if request.method == 'POST':
