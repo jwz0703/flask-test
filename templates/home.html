@@ -4,8 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0px;
+            padding: 0px;
+
+        }
+            
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100dvh;
+            margin: 0px;
+            background: #fafafa;
+        }
+        .container {
+            
+            padding: 48px 40px;
+            border-radius: 16px;
+            width: min(90%,300px);
+        }
+        .card {
+            
+            padding: 14px 30px;
+            background: #fafafa;
+            text-align: center;
+            border-radius: 980px;
+            color: #0071E3;
+            border: 1px solid #0071E3;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);;
+        }
+        .card:hover {
+            background: #0071E3;
+            color: white;
+        }
+        .field {
+            width: 100%;
+            gap: 18px;
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 24px;
+            margin-top: 0px;
+            margin-left: 4px;
+            margin-right: 4px;
+            letter-spacing: 0.03rem;
+            text-align: center;
+        }
+        a {
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
-    <a href="/login">登入</a>
+    <div class="container">
+        <h1>歡迎回來</h1>
+        <div class="field">
+            <a class="card" href="/login">登入</a>
+            <a class="card" href="/generate">ai聊天</a>  
+        </div>
+
+    </div>
+    
 </body>
 </html>

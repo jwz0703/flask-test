@@ -21,6 +21,7 @@
                     console.log("stream end");
                     return;
                 }
+                output.innerText += JSON.parse(event.data);
                 console.log(JSON.parse(event.data));
             }
         }
