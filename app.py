@@ -1,6 +1,8 @@
 from werkzeug.security import generate_password_hash,check_password_hash
-from flask import Flask,render_template,redirect,request
+from flask import Flask,render_template,redirect,request,jsonify,Response,stream_with_context
 import sqlite3
+import json
+from services.gemini import generate_stream
 app = Flask(__name__)
 def get_db():
     conn = sqlite3.connect('users.db')
@@ -9,6 +11,9 @@ def get_db():
 @app.route('/')
 def home():
     return render_template('home.html')
+@app.route('/generate')
+def generate():
+    return render_template('generate.html')
 @app.route('/register',methods = ['GET','POST'])
 def register():
     if request.method == 'POST':
@@ -25,8 +30,6 @@ def register():
         finally:
             db.close()
     return render_template('register.html')
-
-
 
 @app.route('/login',methods = ['GET','POST'])
 def login():
@@ -47,5 +50,20 @@ def login():
 def success():
     return "Success"
 
+@app.route('/api/chat',methods=['GET'])
+def generate_chat():
+    data = request.args.get('q',"你好")
+    print(f"收到訊息,{data}")
+    def sse_stream():
+        try:
+            for chunk in generate_stream(data):
+                yield f"data: {json.dumps(chunk,ensure_ascii=False)}\n\n"
+        except Exception as e:
+            error_msg = {"error": str(e)}
+            yield f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n"
+            print(f"串流中斷或出錯: {e}")
+        finally:
+            yield "data: [DONE]\n\n"
+    return Response(stream_with_context(sse_stream()),mimetype='text/event-stream')
 if __name__ == '__main__':
     app.run(debug=True)

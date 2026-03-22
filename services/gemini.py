@@ -1,12 +1,10 @@
 # To run this code you need to install the following dependencies:
 # pip install google-genai
-
-import os
 from google import genai
 from google.genai import types
 
 
-def generate():
+def generate_stream(user_input="你好"):
     client = genai.Client()
 
     model = "gemini-3-flash-preview"
@@ -14,7 +12,7 @@ def generate():
         types.Content(
             role="user",
             parts=[
-                types.Part.from_text(text="""INSERT_INPUT_HERE"""),
+                types.Part.from_text(text=user_input),
             ],
         ),
     ]
@@ -34,9 +32,13 @@ def generate():
         contents=contents,
         config=generate_content_config,
     ):
-        print(chunk.text, end="")
+        
+        yield chunk.text
+        
 
 if __name__ == "__main__":
-    generate()
+    for text in generate_stream("如何證明e^i pi=-1"):
+        print(text)
+    
 
 
