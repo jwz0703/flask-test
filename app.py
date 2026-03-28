@@ -52,6 +52,8 @@ def success():
 
 @app.route('/api/chat',methods=['GET'])
 def generate_chat():
+
+
     data = request.args.get('q',"你好")
     print(f"收到訊息,{data}")
     def sse_stream():
@@ -65,5 +67,10 @@ def generate_chat():
         finally:
             yield "data: [DONE]\n\n"
     return Response(stream_with_context(sse_stream()),mimetype='text/event-stream')
+
+
+@app.route('/md')
+def md():
+    return render_template('mdlatex.html')
 if __name__ == '__main__':
     app.run(debug=True)

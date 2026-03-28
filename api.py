@@ -1,6 +1,9 @@
-import os
+import time
+def flexible_counter():
+    for i in range(5):
+        yield i
+        time.sleep(1)
 
-
-# 讀取環境變數來確認
-api_key = os.getenv("GEMINI_API_KEY")
-print(f"目前的 API Key 是: {api_key}")
+counter = flexible_counter()
+for item in counter:
+    print(item)

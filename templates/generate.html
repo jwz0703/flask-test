@@ -1,32 +1,387 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>h1</h1>
-    <p id="output"></p>
-    <button id="btn" onclick="handleCLick()">按我</button>
-    <script>
-        const output = document.getElementById("output");
-        function handleCLick(){
-            const input = "展開(a+b)^2";
-            const source = new EventSource('/api/chat?q='+encodeURIComponent(input));
-            console.log("開始...");
-            source.onmessage = (event) =>{
-                if(event.data == "[DONE]"){
-                    source.close();
-                    console.log("stream end");
-                    return;
-                }
-                output.innerText += JSON.parse(event.data);
-                console.log(JSON.parse(event.data));
+    <title>Chat</title>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100dvh;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 32px 24px;
+            background: #ffffff;
+            min-width: min(480px, 92%);
+            max-width: 560px;
+            border-radius: 20px;
+            box-shadow:
+                0 0 0 0.5px rgba(0, 0, 0, 0.05),
+                0 4px 16px rgba(0, 0, 0, 0.08),
+                0 12px 40px rgba(0, 0, 0, 0.04);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        input[type="text"] {
+            width: 90%;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-family: inherit;
+            text-align: center;
+            color: #1d1d1f;
+            background: #f5f5f7;
+            border: 1.5px solid transparent;
+            border-radius: 980px;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        input[type="text"]::placeholder {
+            color: #a1a1a6;
+        }
+
+        input[type="text"]:focus {
+            background: #ffffff;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 3.5px rgba(0, 113, 227, 0.2);
+        }
+
+        button {
+            width: 90%;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            letter-spacing: -0.1px;
+            color: #ffffff;
+            background: #0071e3;
+            border: none;
+            border-radius: 980px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover:not(:disabled) {
+            transform: scale(1.01);
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background: #a1a1a6;
+            cursor: not-allowed;
+        }
+
+        /* Thinking Area */
+        .thinking-wrapper {
+            width: 90%;
+            display: none;
+        }
+
+        .thinking-wrapper.visible {
+            display: block;
+        }
+
+        .thinking-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #86868b;
+            cursor: pointer;
+            padding: 8px 0;
+            user-select: none;
+            transition: color 0.2s ease;
+            background: none;
+            width: auto;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .thinking-toggle:hover {
+            color: #1d1d1f;
+            background: none;
+            transform: none;
+        }
+
+        .thinking-toggle svg {
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .thinking-toggle.expanded svg {
+            transform: rotate(90deg);
+        }
+
+        .thinking-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+                        opacity 0.3s ease,
+                        padding 0.3s ease;
+            opacity: 0;
+            background: #f5f5f7;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #6e6e73;
+            padding: 0 16px;
+        }
+
+        .thinking-content.expanded {
+            max-height: 300px;
+            overflow-y: auto;
+            opacity: 1;
+            padding: 14px 16px;
+        }
+
+        .thinking-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .thinking-content::-webkit-scrollbar-thumb {
+            background: #d2d2d7;
+            border-radius: 4px;
+        }
+
+        /* Dot animation for thinking in progress */
+        .thinking-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .thinking-dots span {
+            width: 5px;
+            height: 5px;
+            background: #86868b;
+            border-radius: 50%;
+            display: inline-block;
+            animation: dotPulse 1.4s ease-in-out infinite;
+        }
+
+        .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Output */
+        #output {
+            width: 90%;
+            text-align: left;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #1d1d1f;
+            min-height: 0;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        #output:empty {
+            display: none;
+        }
+
+        /* Markdown content styling */
+        #output p {
+            margin-bottom: 8px;
+        }
+
+        #output pre {
+            background: #f5f5f7;
+            border-radius: 10px;
+            padding: 14px 16px;
+            overflow-x: auto;
+            font-size: 13px;
+            margin: 8px 0;
+        }
+
+        #output code {
+            font-family: "SF Mono", "Fira Code", "Menlo", monospace;
+            font-size: 13px;
+            background: #f5f5f7;
+            padding: 2px 6px;
+            border-radius: 5px;
+        }
+
+        #output pre code {
+            background: none;
+            padding: 0;
+        }
+
+        /* Divider */
+        .divider {
+            width: 90%;
+            height: 0.5px;
+            background: #d2d2d7;
+            border: none;
+            margin: 4px 0;
+        }
+
+        /* Subtle entrance animation */
+        .container {
+            animation: fadeUp 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>輸入訊息</h1>
+        <input type="text" id="userinput" placeholder="輸入你的問題...">
+
+        <!-- Thinking Area -->
+        <div class="thinking-wrapper" id="thinkingWrapper">
+            <button class="thinking-toggle" id="thinkingToggle" onclick="toggleThinking()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M5 3L9 7L5 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span id="thinkingLabel">思考中</span>
+                <span class="thinking-dots" id="thinkingDots">
+                    <span></span><span></span><span></span>
+                </span>
+            </button>
+            <div class="thinking-content" id="thinkingContent"></div>
+        </div>
+
+        <div class="divider" id="divider" style="display:none;"></div>
+
+        <p id="output"></p>
+
+        <button id="btn" onclick="handleCLick()">送出</button>
+    </div>
+
+    <script src="/static/js/marked_latex.js"></script>
+    <script>
+        const output = document.getElementById("output");
+        const userInput = document.getElementById("userinput");
+        const btn = document.getElementById("btn");
+        const thinkingWrapper = document.getElementById("thinkingWrapper");
+        const thinkingToggle = document.getElementById("thinkingToggle");
+        const thinkingContent = document.getElementById("thinkingContent");
+        const thinkingLabel = document.getElementById("thinkingLabel");
+        const thinkingDots = document.getElementById("thinkingDots");
+        const divider = document.getElementById("divider");
+
+        let result = "";
+        let thinkResult = "";
+        let isThinkingExpanded = false;
+
+        function toggleThinking() {
+            isThinkingExpanded = !isThinkingExpanded;
+            thinkingToggle.classList.toggle("expanded", isThinkingExpanded);
+            thinkingContent.classList.toggle("expanded", isThinkingExpanded);
+        }
+
+        function handleCLick() {
+            console.log(encodeURI(userInput.value));
+            btn.innerText = "等待中...";
+            btn.disabled = true;
+            result = "";
+            thinkResult = "";
+            output.innerHTML = "";
+            thinkingContent.innerHTML = "";
+            thinkingWrapper.classList.remove("visible");
+            thinkingDots.style.display = "inline-flex";
+            thinkingLabel.textContent = "思考中";
+            divider.style.display = "none";
+
+            const input = userInput.value;
+            const source = new EventSource('/api/chat?q=' + encodeURIComponent(input));
+            console.log("開始...");
+
+            source.onmessage = (event) => {
+                if (event.data == "[DONE]") {
+                    source.close();
+                    console.log("stream end");
+                    btn.innerText = "送出";
+                    btn.disabled = false;
+                    thinkingDots.style.display = "none";
+                    if (thinkResult) {
+                        thinkingLabel.textContent = "已思考完畢";
+                    }
+                    return;
+                }
+                const data = JSON.parse(event.data);
+                if (data.error) {
+                    console.error(`backend error:${data.error}`);
+                    source.close();
+                    btn.innerText = "送出";
+                    btn.disabled = false;
+                    return;
+                }
+                const { status, content } = data;
+                console.log(status, content);
+
+                if (status === "thinking") {
+                    thinkingWrapper.classList.add("visible");
+                    thinkResult += content;
+                    thinkingContent.textContent = thinkResult;
+                    if (isThinkingExpanded) {
+                        thinkingContent.scrollTop = thinkingContent.scrollHeight;
+                    }
+                } else {
+                    if (thinkResult) {
+                        thinkingDots.style.display = "none";
+                        thinkingLabel.textContent = "已思考完畢";
+                        divider.style.display = "block";
+                    }
+                    result += content;
+                    MDRenderer.render('#output', result);
+                }
+            }
+        }
+
+        // Enter key to send
+        userInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !btn.disabled) {
+                handleCLick();
+            }
+        });
     </script>
 </body>
-
 </html>

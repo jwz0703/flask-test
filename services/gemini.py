@@ -2,11 +2,9 @@
 # pip install google-genai
 from google import genai
 from google.genai import types
-
-
+import json
 def generate_stream(user_input="你好"):
     client = genai.Client()
-
     model = "gemini-3-flash-preview"
     contents = [
         types.Content(
@@ -23,6 +21,7 @@ def generate_stream(user_input="你好"):
     generate_content_config = types.GenerateContentConfig(
         thinking_config=types.ThinkingConfig(
             thinking_level="HIGH",
+            include_thoughts=True
         ),
         tools=tools,
     )
@@ -32,13 +31,17 @@ def generate_stream(user_input="你好"):
         contents=contents,
         config=generate_content_config,
     ):
-        
-        yield chunk.text
+        for part in chunk.candidates[0].content.parts:
+            if part.thought:
+                yield {"status":"thinking","content":part.text}
+            else:
+                yield {"status":"response","content":part.text}
         
 
 if __name__ == "__main__":
-    for text in generate_stream("如何證明e^i pi=-1"):
-        print(text)
+    print("starting...gemini 3.1 pro")
+    for text in generate_stream("x|x|+3x+4=0有幾個實根"):
+        print(json.dumps(text, ensure_ascii=False))
     
 
 

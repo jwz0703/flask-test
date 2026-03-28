@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            border: 0;
+            box-sizing: border-box;
+            border-radius: 980px;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100dvh;
+        }
+        .container {
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 8px;
+            background: #fff2f2;
+            min-width: min(420px,90%);
+            border-radius: 8px;
+        }
+        input {
+            padding: 20px 24px;
+            width: 90%;
+            text-align: center;
+            font-size: 16px;
+        }
+        button {
+            width: 90%;
+            padding: 20px 24px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        h1 {
+            margin-top: 8px;
+            
+        }
+        p {
+            width: 90%;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>輸入訊息</h1>
+        <input type="text" id="userinput" placeholder="輸入訊息">
+        <p id="output"></p>
+        <button id="btn" onclick="handleCLick()">按我</button>
+    </div>
+    <script src="/static/js/marked_latex.js"></script>
+    <script>
+        const output = document.getElementById("output");
+        const userInput = document.getElementById("userinput");
+        const btn = document.getElementById("btn");
+        let result = "";
+        function handleCLick(){
+            console.log(encodeURI(userInput.value));
+            btn.innerText = "等待中...";
+            btn.disabled = true;
+            const input = userInput.value;
+            const source = new EventSource('/api/chat?q='+encodeURIComponent(input));
+            console.log("開始...");
+            source.onmessage = (event) =>{
+                if(event.data == "[DONE]"){
+                    source.close();
+                    console.log("stream end");
+                    btn.innerText = "按我";
+                    btn.disabled = false;
+                    return;
+                }
+                const data = JSON.parse(event.data);
+                if(data.error){
+                    console.error(`backend error:${data.error}`);
+                    source.close();
+                    btn.disabled = false;
+                    return;
+                }
+                const {status,content} = JSON.parse(event.data);
+                console.log(status,content);
+                result+=content;
+                MDRenderer.render('#output',result);
+                
+            }
+        }
+        
+    </script>
+</body>
+
+</html>
