@@ -1,7 +1,11 @@
-import sqlite3
-conn = sqlite3.connect('users.db')
-curser = conn.cursor()
-with open('schema.sql') as f:
-    curser.executescript(f.read())
-conn.commit()
-conn.close()
+from supabase import Client, create_client
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_SERVICE_KEY")
+supabase: Client = create_client(url, key)
+

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p id="output"></p>
+    <input type="file" id="fileInput" multiple>
+    <button id="btn" onclick="handle_click()">click</button>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const output = document.getElementById('output');
+        const btn = document.getElementById('btn');
+        fileInput.addEventListener('change',(e)=>{
+            const files = [...e.target.files];
+            const result = [];
+            files.forEach(file =>{
+                result.push({
+                    name:file.name,
+                    size:file.size,
+                    type:file.type,
+                    url:URL.createObjectURL(file)
+                });
+            })
+            console.log(result);
+            result.forEach(item=>{
+                const element = document.createElement('p');
+                const img = document.createElement('img');
+                img.src = item.url;
+                element.innerText = `name: ${item.name} \n size: ${item.size} \n type: ${item.type}`;
+                output.appendChild(element);
+                output.appendChild(img);
+            })
+        });
+
+        async function handle_click() {
+            const formData = new FormData();
+            formData.append('username','jj');
+            const data = await fetch('/submit',{
+                method:'POST',
+                body:formData
+            });
+            const response = await data.json();
+            console.log(response);
+        }
+    </script>
+</body>
+</html>
