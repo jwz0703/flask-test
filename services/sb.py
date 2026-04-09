@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 from services.generate_text import generate
 from typing import Literal
-import uuid
 import time
 load_dotenv()
 
