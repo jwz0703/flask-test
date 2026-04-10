@@ -35,15 +35,17 @@
         .segmented {
             display: flex;
             position: relative;
-            background-color: #f7f7f7;
-            color: rgb(94, 94, 94);
+            background-color: #f7f7f761;
+            backdrop-filter: blur(5px);
+            color: rgba(151, 151, 151, 0.288);
             padding: 2px;
             border-radius: 980px;
             box-shadow: 0 16px 48px rgba(0,0,0,.10),0 4px 12px rgba(0,0,0,.06);
+            z-index: 99999;
         }
         .seg-pill {
             position: absolute;
-            background-color: rgb(212, 212, 212);
+            background-color: rgba(199, 199, 199, 0.683);
             border-radius: 980px;
             top: 2px; left: 2px;
             width: calc(50% - 2px);
@@ -89,6 +91,7 @@
         .md-area {
             display: block;
             width: 100%;
+            z-index: 1;
         }
     </style>
 </head>
@@ -111,7 +114,14 @@
     </div>
 
     <div id="view-history" class="view" style="display: none;">
-        <img src="/static/images/f.jpg" alt="分蚵仔" style="border-radius: 16px; width:100%;">
+        <img src="/static/images/f.jpg" alt="分蚵仔" style="border-radius: 16px; width:100%;margin: 4px;">
+        <img src="/static/images/f.jpg" alt="分蚵仔" style="border-radius: 16px; width:100%;margin: 4px;">
+        <img src="/static/images/f.jpg" alt="分蚵仔" style="border-radius: 16px; width:100%;margin: 4px;">
+        <img src="/static/images/f.jpg" alt="分蚵仔" style="border-radius: 16px; width:100%;margin: 4px;">
+        <img src="/static/images/f.jpg" alt="分蚵仔" style="border-radius: 16px; width:100%;margin: 4px;">
+        <img src="/static/images/f.jpg" alt="分蚵仔" style="border-radius: 16px; width:100%;margin: 4px;">
+        <img src="/static/images/f.jpg" alt="分蚵仔" style="border-radius: 16px; width:100%;margin: 4px;">
+        
     </div>
     <script>
         const $ = id => document.getElementById(id);
@@ -140,7 +150,18 @@ $$f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!} (x-a)^n$$
 展開後：
 
 $$f(x) = f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \frac{f'''(a)}{3!}(x-a)^3 + \dots + \frac{f^{(n)}(a)}{n!}(x-a)^n + R_n(x)$$
-        `;
+
+### 廣義相對論場方程式 (Einstein Field Equations)
+$$R_{\mu\nu} - \frac{1}{2}R g_{\mu\nu} + \Lambda g_{\mu\nu} = \frac{8\pi G}{c^4} T_{\mu\nu}$$
+
+---
+
+### 納維-斯托克斯方程式 (Navier-Stokes Equations)
+$$\rho \left( \frac{\partial \mathbf{u}}{\partial t} + \mathbf{u} \cdot \nabla \mathbf{u} \right) = -\nabla p + \mu \nabla^2 \mathbf{u} + \mathbf{f}$$
+
+
+
+`;
         MDRenderer.render('#content',markDownString)
     </script>
 </body>
