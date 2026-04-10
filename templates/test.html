@@ -100,6 +100,7 @@
             <button class="seg-btn" onclick="switchTab(1)">歷史</button>
         </div>
     </div>
+
     <div id="view-conversation" class="view">
         <div class="upload-zone" id="drop-zone" onclick= "document.getElementById('fileInput').click()">
             <i class="fa-solid fa-upload"></i>
@@ -108,7 +109,10 @@
         <input type="file" id="fileInput" accept="image/*" style="display: none;">
         <div id="content" class="md-area"></div>
     </div>
-    <div id="view-history" class="view" style="display: none;"></div>
+
+    <div id="view-history" class="view" style="display: none;">
+        <img src="/static/images/f.jpg" alt="分蚵仔">
+    </div>
     <script>
         const $ = id => document.getElementById(id);
         let state = 'conversation';
