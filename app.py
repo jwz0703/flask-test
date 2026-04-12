@@ -47,7 +47,7 @@ def chat():
                 yield str(message['content'])
         except Exception as e:
             print(f"api error{e}")
-            yield "無法生成"
+            yield f"無法生成{e}"
         yield "完成\n"
     return Response(stream_with_context(generate()),mimetype='text/plain')
 
