@@ -9,10 +9,17 @@ from services.gemini import format_history, generate_stream, generate_stream_wit
 import json
 import time
 import mimetypes
+import os
 app = Flask(__name__)
 
 
-
+@app.route("/debug-env")
+def debug():
+    key = os.environ.get("GEMINI_API_KEY")
+    if key:
+        return jsonify({"status":"found","perfix":key[:4]})
+    else:
+        return jsonify({"status":"not-found"})
 @app.route("/")
 def index():
     return render_template("test.html")
