@@ -126,6 +126,8 @@
         }
     }
     $('submitBtn').addEventListener('click',async () =>{
+        $('submitBtn').disabled = true;
+        $('submitBtn').innerText = "生成中...";
         uploadMultipleFiles(selectFiles);
     })
     async function uploadMultipleFiles(files){
@@ -152,6 +154,8 @@
                 MDRenderer.render('#content',text)
                 console.log(chunk);
             }
+            $('submitBtn').disabled = false;
+            $('submitBtn').innerText = "生成完成";
         } catch (err){
             console.log(err);
         }
