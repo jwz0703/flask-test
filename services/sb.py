@@ -53,15 +53,18 @@ def load_conversation_by_id(conversation_id, count = 5):
     )
     return response.data[::-1]
 
-def upload_file(conversation_id):
+def upload_file(conversation_id, file_bytes, mimetype):
     filename = f"{conversation_id}/{int(time.time())}_big.jpg"
-    with open('images.jpg',"rb") as f:
-        response = (supabase.storage.from_("images").upload(
-            path=f"original/{filename}",
-            file=f,
-            file_options={"cache-control": "3600", "upsert": "true","content-type":"image/jpg"}
-        ))
-    return response
+    
+    response = (supabase.storage.from_("images").upload(
+        path=f"original/{filename}",
+        file=file_bytes,
+        file_options={"cache-control": "3600", "upsert": "true","content-type":mimetype}
+    ))
+
+    path_without_bucket = response.full_path.removeprefix("images/")
+    public_url = supabase.storage.from_("images").get_public_url(path_without_bucket)
+    return public_url
 
 if __name__ == "__main__":
     #print(insert_content_with_images("8c0e2545-7812-40a6-acda-f66f6b130aba","user","hhihihihi",["/original/5c43b13a-a5e1-49dc-9e0c-1277933f65fa/1775669609_big.jpg"]))

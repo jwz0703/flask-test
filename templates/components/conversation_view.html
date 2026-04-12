@@ -93,7 +93,7 @@
     <p>點擊上傳</p>
     <div id="previewGrid" class = "preview-grid"></div>
 </div>
-<button class="upload-click-btn">開始</button>
+<button id="submitBtn" class="upload-click-btn">開始</button>
 <input type="file" id="fileInput" accept="image/*" style="display: none;" multiple>
 <div id="content" class="md-area"></div>
 <script>
@@ -105,6 +105,7 @@
             addFiles(files);
         }
     });
+    let selectFiles = [];
     function addFiles(files){
         for(const file of files){
             if(!file.type.startsWith('image/')) continue;
@@ -115,35 +116,49 @@
             item.querySelector('.preview-del').onclick = e =>{
                 e.stopPropagation();
                 URL.revokeObjectURL(url);
+                selectFiles.splice(selectFiles.indexOf(file),1);
                 item.remove();
                 console.log(item);
             }
+            selectFiles.push(file);
             $('previewGrid').appendChild(item);
+            
         }
     }
+    $('submitBtn').addEventListener('click',async () =>{
+        uploadMultipleFiles(selectFiles);
+    })
     async function uploadMultipleFiles(files){
         const formData = new FormData();
         for (const file of files){
             formData.append('images',file)
-            console.log(formData)
         }
-        response = await fetch('/api/upload-images',{
-            method :"POST",
-            body : formData
-        });
-        data = response.json();
+        try {
+            const response = await fetch('/api/start-chat',{
+                method :"POST",
+                body : formData
+            });
+            const reader = response.body.getReader();
+            decoder = new TextDecoder();
+            text = "";
+            while(true){
+                const {done, value} = await reader.read();
+                if (done) {
+                    console.log("喔喔喔愛");
+                    break;
+                }
+                const chunk = decoder.decode(value);
+                text += chunk;
+                MDRenderer.render('#content',text)
+                console.log(chunk);
+            }
+        } catch (err){
+            console.log(err);
+        }
+        
     }
 
 
-    const markDownString = String.raw`
 
-### 標題
-- 第一項
-- 第二項
-
-### 太ㄌㄨㄚˋ展開 
-$$f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!} (x-a)^n$$
-
-`;
-    MDRenderer.render('#content',markDownString)
+    
 </script>
