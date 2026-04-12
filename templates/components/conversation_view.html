@@ -1,0 +1,149 @@
+<style>
+    .upload-zone {
+            width: 100%;
+            margin: 10px;
+            
+            padding: 30px 12px;
+            border: var(--primary-color) solid 1px;
+            color: var(--primary-color);
+            border-radius: 16px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .upload-zone p {
+            font-size: 16px;
+            padding: 14px;
+        }
+        .upload-click-btn {
+            width: 100%;
+            padding: 8px 24px;
+            font-size: 16px;
+            border-radius: 980px;
+            border: solid var(--primary-color) 1px;
+            margin: 10px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        .upload-click-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        .upload-click-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .md-area {
+            display: block;
+            width: 100%;
+        }
+        .preview-grid {
+            width: 100%;
+            display: flex;
+            height: 240px;
+            overflow-x: auto;
+            gap:8px;
+            padding: 10px;
+            
+        }
+        .preview-grid::-webkit-scrollbar {
+            display: none;
+        }
+        .preview-item {
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            width: 200px;
+            border-radius: 16px;
+            border: none; 
+            border: 1px gray solid;
+        }
+        .preview-item img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            
+        }
+        .preview-del {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 100%;
+            border: none;
+            top: 8px;
+            right: 8px;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.436);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            cursor: pointer;
+            box-shadow: 0 16px 48px rgba(0,0,0,.10),0 4px 12px rgba(0,0,0,.06);
+        }
+</style>
+<h1>想作弊喔</h1>
+<div class="upload-zone" id="drop-zone" onclick= "$('fileInput').click()">
+    <i class="fa-solid fa-upload"></i>
+    <p>點擊上傳</p>
+    <div id="previewGrid" class = "preview-grid"></div>
+</div>
+<button class="upload-click-btn">開始</button>
+<input type="file" id="fileInput" accept="image/*" style="display: none;" multiple>
+<div id="content" class="md-area"></div>
+<script>
+    $ = id => document.getElementById(id);
+    $('fileInput').addEventListener('change',function(){
+        const files = $('fileInput').files;
+        console.log(files);
+        if(files.length > 0){
+            addFiles(files);
+        }
+    });
+    function addFiles(files){
+        for(const file of files){
+            if(!file.type.startsWith('image/')) continue;
+            const url = URL.createObjectURL(file);
+            const item = document.createElement('div');
+            item.className = 'preview-item';
+            item.innerHTML = `<img src="${url}"><button class="preview-del">✕</button>`;
+            item.querySelector('.preview-del').onclick = e =>{
+                e.stopPropagation();
+                URL.revokeObjectURL(url);
+                item.remove();
+                console.log(item);
+            }
+            $('previewGrid').appendChild(item);
+        }
+    }
+    async function uploadMultipleFiles(files){
+        const formData = new FormData();
+        for (const file of files){
+            formData.append('images',file)
+            console.log(formData)
+        }
+        response = await fetch('/api/upload-images',{
+            method :"POST",
+            body : formData
+        });
+        data = response.json();
+    }
+
+
+    const markDownString = String.raw`
+
+### 標題
+- 第一項
+- 第二項
+
+### 太ㄌㄨㄚˋ展開 
+$$f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!} (x-a)^n$$
+
+`;
+    MDRenderer.render('#content',markDownString)
+</script>

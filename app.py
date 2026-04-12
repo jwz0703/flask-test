@@ -18,6 +18,15 @@ def index():
 def test():
     return render_template("test.html")
 
+
+@app.route('/health')
+def health():
+    return render_template('health.html')
+
+@app.route("/api/upload-images")
+def upload_images():
+    return "ok"
+
 @app.route("/api/conversations", methods=["GET"])
 def get_conversations():
     data = get_conversations_content()
