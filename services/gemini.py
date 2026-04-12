@@ -2,7 +2,7 @@
 # pip install google-genai
 from google import genai
 from google.genai import types
-import json
+import os
 
 def format_history(json_history):
     formatted = []
@@ -15,7 +15,7 @@ def format_history(json_history):
             ))
     return formatted
 def generate_stream_with_parts(user_input: list,history):
-    client = genai.Client()
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
     model = "gemini-3-flash-preview"
     final_usage = {
         "input": 0,
