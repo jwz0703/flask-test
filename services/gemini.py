@@ -38,6 +38,7 @@ def generate_stream_with_parts(user_input: list,history, model="gemini-3-flash-p
             types.Part.from_text(text="""你是一位台灣高中老師，你的主要任務為:
 - 如果照片裡有可以解的問題，請解答他
 - 如果用戶詢問相關知識，請你在一開始詳細說明用戶提及的觀念
+- 題目有可能是多選題，請考慮清楚，如果今天選項有五個，通常是多選題
 """),
         ],
         tools=tools,)
