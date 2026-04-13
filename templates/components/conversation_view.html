@@ -44,7 +44,7 @@
         .preview-grid {
             width: 100%;
             display: flex;
-            height: 240px;
+            
             overflow-x: auto;
             gap:8px;
             padding: 10px;
@@ -86,13 +86,34 @@
             cursor: pointer;
             box-shadow: 0 16px 48px rgba(0,0,0,.10),0 4px 12px rgba(0,0,0,.06);
         }
+        .extra-message {
+            width: 100%;
+            resize: none;
+            min-height: 48px;
+            font-size: 16px;
+            border-radius: 16px;
+            padding: 8px;
+            border-color: var(--primary-color);
+            overflow: hidden;
+        }
+        .upload-hint {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 </style>
 <h1>想作弊喔</h1>
 <div class="upload-zone" id="drop-zone" onclick= "$('fileInput').click()">
-    <i class="fa-solid fa-upload"></i>
-    <p>點擊上傳</p>
+    <div id="uploadHint" class="upload-hint">
+        <i class="fa-solid fa-upload"></i>
+        <p>點擊上傳</p>
+    </div>
+    
     <div id="previewGrid" class = "preview-grid"></div>
 </div>
+<label for="extraMessage" style="display: none;">額外訊息</label>
+<textarea name="extraMessage" id="extraMessage" placeholder="額外訊息..." class="extra-message" rows="4" cols="5"></textarea>
+
 <button id="submitBtn" class="upload-click-btn">開始</button>
 <input type="file" id="fileInput" accept="image/*" style="display: none;" multiple>
 <div id="content" class="md-area"></div>
@@ -108,6 +129,7 @@
     let selectFiles = [];
     function addFiles(files){
         for(const file of files){
+            $('uploadHint').style.display = "none";
             if(!file.type.startsWith('image/')) continue;
             const url = URL.createObjectURL(file);
             const item = document.createElement('div');
@@ -117,6 +139,12 @@
                 e.stopPropagation();
                 URL.revokeObjectURL(url);
                 selectFiles.splice(selectFiles.indexOf(file),1);
+                if(selectFiles.length == 0){
+                    $('uploadHint').style.display = "flex";
+                } else {
+                    console.log("hide");
+                    $('uploadHint').style.display = "none";
+                }
                 item.remove();
                 console.log(item);
             }
@@ -135,6 +163,8 @@
         for (const file of files){
             formData.append('images',file)
         }
+        const extraMessage = $('extraMessage').value;
+        formData.append('extraMessage',extraMessage);
         try {
             const response = await fetch('/api/start-chat',{
                 method :"POST",
@@ -161,7 +191,10 @@
         }
         
     }
-
+    $('extraMessage').addEventListener('input',function(){
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight +'px';
+    })
 
 
     

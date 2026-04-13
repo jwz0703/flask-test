@@ -30,7 +30,8 @@ def test():
 @app.route("/api/start-chat", methods =['POST'])
 def chat():
     id = insert_conversation('新對話')
-    files = request.files.getlist('images')
+    extra_message = request.form.get('extraMessage','')
+    print(extra_message)
     files_data = []
     for file in request.files.getlist('images'):
         files_data.append({
@@ -40,7 +41,7 @@ def chat():
         })
     parts = []
     history = []
-    parts.append(types.Part.from_text(text="你是一位高中老師，請幫同學解題，題目在圖片裡面，請好好思考"))
+    parts.append(types.Part.from_text(text=extra_message))
     def generate():
         yield f"{id}\n"
         for data in files_data:
@@ -58,9 +59,6 @@ def chat():
         yield "完成\n"
     return Response(stream_with_context(generate()),mimetype='text/plain')
 
-@app.route('/health')
-def health():
-    return render_template('health.html')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',debug=True)

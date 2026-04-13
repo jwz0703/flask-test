@@ -14,9 +14,9 @@ def format_history(json_history):
                 ],
             ))
     return formatted
-def generate_stream_with_parts(user_input: list,history):
+def generate_stream_with_parts(user_input: list,history, model="gemini-3-flash-preview"):
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-    model = "gemini-3-flash-preview"
+    model = model
     final_usage = {
         "input": 0,
         "thoughts": 0,
@@ -33,7 +33,14 @@ def generate_stream_with_parts(user_input: list,history):
         thinking_config=types.ThinkingConfig(
             thinking_level="HIGH",
             include_thoughts=True
-        ),tools=tools,)
+        ),
+        system_instruction=[
+            types.Part.from_text(text="""你是一位台灣高中老師，你的主要任務為:
+- 如果照片裡有可以解的問題，請解答他
+- 如果用戶詢問相關知識，請你在一開始詳細說明用戶提及的觀念
+"""),
+        ],
+        tools=tools,)
     for chunk in client.models.generate_content_stream(
         model=model,
         contents=contents,
@@ -53,6 +60,8 @@ def generate_stream_with_parts(user_input: list,history):
                 yield {"status":"response","content":part.text}
 
     yield {"status":"usage","content":final_usage}
+
+
 
 def generate_stream(user_input="你好",history:list = None):
 
