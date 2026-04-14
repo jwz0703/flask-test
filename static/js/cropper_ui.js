@@ -1,5 +1,4 @@
 (() => {
-  /* ── 載入 Cropper.js CDN ── */
   const css = document.createElement('link');
   css.rel = 'stylesheet';
   css.href = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css';
@@ -19,52 +18,58 @@
   };
   load();
 
-  /* ── 注入樣式 ── */
   const st = document.createElement('style');
   st.textContent = [
-    '.ci-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:99999}',
-    '.ci-bx{background:#1c1c2e;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px;max-width:92vw;max-height:92vh;box-shadow:0 24px 80px rgba(0,0,0,.65)}',
-    '.ci-wp{overflow:hidden;max-height:70vh;line-height:0;border-radius:6px}',
+    /* ── Overlay ── */
+    '.ci-ov{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:99999}',
+
+    /* ── Dialog box ── */
+    '.ci-bx{background:#fff;border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:16px;max-width:92vw;max-height:92vh}',
+
+    /* ── Image wrapper ── */
+    '.ci-wp{overflow:hidden;max-height:70vh;line-height:0;border-radius:12px}',
     '.ci-wp img{display:block;max-width:100%}',
+
+    /* ── Buttons row ── */
     '.ci-bt{display:flex;justify-content:flex-end;gap:10px}',
-    '.ci-bt button{padding:10px 32px;border:none;border-radius:8px;font-size:15px;cursor:pointer;font-weight:600;transition:all .15s;outline:none}',
-    '.ci-cn{background:#2a2a3d;color:#999}',
-    '.ci-cn:hover{background:#38384f;color:#fff}',
-    '.ci-ok{background:#6366f1;color:#fff}',
-    '.ci-ok:hover{background:#4f46e5}',
-    /* 隱藏邊中點與邊線 */
+    '.ci-bt button{padding:10px 28px;border-radius:980px;font-size:15px;cursor:pointer;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;transition:all .2s ease;outline:none;-webkit-tap-highlight-color:transparent}',
+
+    /* Cancel — ghost style */
+    '.ci-cn{background:transparent;color:#0071E3;border:1px solid #0071E3}',
+    '.ci-cn:hover{background:#e8f1fb}',
+    '.ci-cn:active{background:#d0e5f8;transform:scale(.98)}',
+
+    /* Confirm — filled style */
+    '.ci-ok{background:#0071E3;color:#fff;border:none}',
+    '.ci-ok:hover{background:#0077ed}',
+    '.ci-ok:active{background:#006bd6;transform:scale(.98)}',
+
+    /* ── Cropper UI tweaks ── */
     '.cropper-point.point-n,.cropper-point.point-s,.cropper-point.point-e,.cropper-point.point-w{display:none!important}',
     '.cropper-line{background-color:transparent!important;pointer-events:none!important}',
-    /* 隱藏九宮格虛線 */
     '.cropper-dashed{display:none!important}',
-    /* 四角共用：重設大小、背景、邊框、margin */
-    '.cropper-point.point-nw,.cropper-point.point-ne,.cropper-point.point-sw,.cropper-point.point-se{width:24px!important;height:24px!important;background:transparent!important;opacity:1!important;margin:0!important;border:none!important;box-sizing:border-box!important}',
-    /* 左上 */
-    '.cropper-point.point-nw{border-top:3px solid #fff!important;border-left:3px solid #fff!important;top:0!important;left:0!important}',
-    /* 右上 */
-    '.cropper-point.point-ne{border-top:3px solid #fff!important;border-right:3px solid #fff!important;top:0!important;right:0!important;left:auto!important}',
-    /* 左下 */
-    '.cropper-point.point-sw{border-bottom:3px solid #fff!important;border-left:3px solid #fff!important;bottom:0!important;left:0!important;top:auto!important}',
-    /* 右下 */
-    '.cropper-point.point-se{border-bottom:3px solid #fff!important;border-right:3px solid #fff!important;bottom:0!important;right:0!important;top:auto!important;left:auto!important}',
-    '.cropper-view-box{outline:1px solid rgba(255,255,255,.45)!important}'
+
+    '.cropper-point.point-nw,.cropper-point.point-ne,.cropper-point.point-sw,.cropper-point.point-se{width:22px!important;height:22px!important;background:transparent!important;opacity:1!important;margin:0!important;border:none!important;box-sizing:border-box!important}',
+    '.cropper-point.point-nw{border-top:2.5px solid #0071E3!important;border-left:2.5px solid #0071E3!important;top:0!important;left:0!important;border-radius:4px 0 0 0!important}',
+    '.cropper-point.point-ne{border-top:2.5px solid #0071E3!important;border-right:2.5px solid #0071E3!important;top:0!important;right:0!important;left:auto!important;border-radius:0 4px 0 0!important}',
+    '.cropper-point.point-sw{border-bottom:2.5px solid #0071E3!important;border-left:2.5px solid #0071E3!important;bottom:0!important;left:0!important;top:auto!important;border-radius:0 0 0 4px!important}',
+    '.cropper-point.point-se{border-bottom:2.5px solid #0071E3!important;border-right:2.5px solid #0071E3!important;bottom:0!important;right:0!important;top:auto!important;left:auto!important;border-radius:0 0 4px 0!important}',
+    '.cropper-view-box{outline:1px solid rgba(0,113,227,.5)!important}'
   ].join('\n');
   document.head.appendChild(st);
 
-  /* ── cropImage(imageUrl) → Promise<Blob> ── */
   window.cropImage = async (imageUrl) => {
     await load();
-
     return new Promise((resolve, reject) => {
-      const ov = document.createElement('div');     ov.className = 'ci-ov';
-      const bx = document.createElement('div');     bx.className = 'ci-bx';
-      const wp = document.createElement('div');     wp.className = 'ci-wp';
-      const img = document.createElement('img');    img.src = imageUrl;
+      const ov  = document.createElement('div');    ov.className  = 'ci-ov';
+      const bx  = document.createElement('div');    bx.className  = 'ci-bx';
+      const wp  = document.createElement('div');    wp.className  = 'ci-wp';
+      const img = document.createElement('img');    img.src       = imageUrl;
       wp.appendChild(img);
 
-      const bt = document.createElement('div');       bt.className = 'ci-bt';
-      const btnCn = document.createElement('button'); btnCn.className = 'ci-cn'; btnCn.textContent = '取消';
-      const btnOk = document.createElement('button'); btnOk.className = 'ci-ok'; btnOk.textContent = '確定';
+      const bt    = document.createElement('div');       bt.className    = 'ci-bt';
+      const btnCn = document.createElement('button');    btnCn.className = 'ci-cn'; btnCn.textContent = '取消';
+      const btnOk = document.createElement('button');    btnOk.className = 'ci-ok'; btnOk.textContent = '確定';
       bt.appendChild(btnCn);
       bt.appendChild(btnOk);
       bx.appendChild(wp);

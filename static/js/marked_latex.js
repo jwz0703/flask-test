@@ -40,7 +40,7 @@
         color: #1a1a2e;
         max-width: 780px;
         margin: 0 auto;
-        padding: 2rem 1.5rem;
+        padding: 0;
         word-break: break-word;
       }
 
@@ -63,7 +63,7 @@
         border-bottom: 3px solid var(--primary-color);
         padding-bottom: 0.4rem;
         margin-top: 0;
-        
+
       }
       .md-body h2 {
         font-size: 1.5rem;
