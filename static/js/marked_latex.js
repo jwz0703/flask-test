@@ -77,6 +77,7 @@
 
       /* ── 段落與正文 ───────────────────────────────── */
       .md-body p {
+        font-size: 0.75rem;
         margin: 0 0 1.2rem;
       }
 
@@ -99,10 +100,12 @@
       /* ── 清單 ─────────────────────────────────────── */
       .md-body ul,
       .md-body ol {
-        margin: 0 0 1.2rem;
+        font-size: 0.75rem;
+        margin: 0 0 0.7rem;
         padding-left: 1.6rem;
       }
       .md-body li {
+        font-size: 0.75rem;
         margin-bottom: 0.35rem;
         line-height: 1.75;
       }
