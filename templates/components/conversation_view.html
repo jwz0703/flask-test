@@ -2,7 +2,7 @@
     .upload-zone {
             width: 100%;
             margin: 10px;
-            
+            min-height: 30dvh;
             padding: 30px 12px;
             border: var(--primary-color) solid 1px;
             color: var(--primary-color);
@@ -47,7 +47,7 @@
             
             overflow-x: auto;
             gap:8px;
-            padding: 10px;
+            
             
         }
         .preview-grid::-webkit-scrollbar {
@@ -101,12 +101,20 @@
             flex-direction: column;
             align-items: center;
         }
+        .thinking {
+            padding: 8px;
+            border:1px solid var(--primary-color);
+            border-radius: 16px;
+        }
+        .thinking-zone {
+            margin-bottom: 4px;
+        }
 </style>
 <h1>想作弊喔</h1>
 <div class="upload-zone" id="drop-zone" onclick= "$('fileInput').click()">
     <div id="uploadHint" class="upload-hint">
-        <i class="fa-solid fa-upload"></i>
-        <p>點擊上傳</p>
+        <i class="fa-solid fa-upload""></i>
+        <p >點擊上傳</p>
     </div>
     
     <div id="previewGrid" class = "preview-grid"></div>
@@ -116,6 +124,7 @@
 
 <button id="submitBtn" class="upload-click-btn">開始</button>
 <input type="file" id="fileInput" accept="image/*" style="display: none;" multiple>
+<div id="thinking-zone" class="thinking-zone"></div>
 <div id="content" class="md-area"></div>
 <script>
     $ = id => document.getElementById(id);
@@ -134,7 +143,7 @@
             const url = URL.createObjectURL(file);
             const item = document.createElement('div');
             item.className = 'preview-item';
-            item.innerHTML = `<img src="${url}"><button class="preview-del">✕</button>`;
+            item.innerHTML = `<img src="${url}" style="height:250px"><button class="preview-del">✕</button>`;
             item.querySelector('.preview-del').onclick = e =>{
                 e.stopPropagation();
                 URL.revokeObjectURL(url);
@@ -166,24 +175,54 @@
         const extraMessage = $('extraMessage').value;
         formData.append('extraMessage',extraMessage);
         try {
+            let text = "";
+            let thought = "";
+            let buffer = "";
             const response = await fetch('/api/start-chat',{
                 method :"POST",
                 body : formData
             });
+
             const reader = response.body.getReader();
+            const thinkingArea = document.createElement('div');
+            thinkingArea.className = "thinking";
+            thinkingArea.id = "thinking";
+            $('thinking-zone').appendChild(thinkingArea);
             decoder = new TextDecoder();
-            text = "";
             while(true){
                 const {done, value} = await reader.read();
                 if (done) {
                     console.log("喔喔喔愛");
                     break;
                 }
-                const chunk = decoder.decode(value);
-                text += chunk;
-                MDRenderer.render('#content',text)
-                console.log(chunk);
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split("\n");
+                buffer = lines.pop();
+                for(const line of lines){
+                    if(!line.trim()) continue;
+                    try {
+                        msg = JSON.parse(line);
+                
+                    if (msg.status == "thinking"){
+                        thought += msg.content;
+                        
+                    } else if (msg.status == "response") {
+                        text += msg.content;
+                        
+                    } else if (msg.status == "usage") {
+                        Object.entries(msg.content).forEach(([key,value]) => text += `${key}:${value} \n`)
+                    } else {
+                        console.log(msg);
+                    }} catch (e) {
+                        console.log(e);
+                    }
+                }
+                MDRenderer.render('#thinking',thought);
+                MDRenderer.render('#content',text);
+                
+                
             }
+            
             $('submitBtn').disabled = false;
             $('submitBtn').innerText = "生成完成";
         } catch (err){
@@ -195,7 +234,4 @@
         this.style.height = 'auto';
         this.style.height = this.scrollHeight +'px';
     })
-
-
-    
 </script>

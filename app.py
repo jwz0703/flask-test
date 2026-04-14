@@ -43,21 +43,22 @@ def chat():
     history = []
     parts.append(types.Part.from_text(text=extra_message))
     def generate():
-        yield f"{id}\n"
+        yield json.dumps({"id":"status","content":id},ensure_ascii=False)  + "\n"
+
         for data in files_data:
             
             url = upload_file(id, data['bytes'], data['mimetype'])
             parts.append(types.Part.from_uri(file_uri=url))
              
-            yield f"{data['filename']} {data['mimetype']} {url}\n"
+            yield json.dumps({"status":"file","content":url},ensure_ascii=False)  + "\n"
         try:
             for message in generate_stream_with_parts(user_input=parts,history=history):
-                yield str(message['content'])
+                yield json.dumps(message,ensure_ascii=False) + "\n"
         except Exception as e:
-            print(f"api error{e}")
-            yield f"無法生成{e}"
-        yield "完成\n"
-    return Response(stream_with_context(generate()),mimetype='text/plain')
+            print(f"api error{e}",ensure_ascii=False)
+            yield json.dumps({"status":"error","content":str(e)},ensure_ascii=False) + "\n"
+        yield json.dumps({"status":"done","content":""},ensure_ascii=False) + "\n"
+    return Response(stream_with_context(generate()),mimetype='application/x-ndjson')
 
 
 if __name__ == "__main__":

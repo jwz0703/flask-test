@@ -48,10 +48,10 @@ def generate_stream_with_parts(user_input: list,history, model="gemini-3-flash-p
         config=generate_content_config,
     ):
         if chunk.usage_metadata:
-            final_usage['input'] = chunk.usage_metadata.prompt_token_count
+            final_usage['input'] = chunk.usage_metadata.prompt_token_count 
             final_usage['thoughts'] = chunk.usage_metadata.thoughts_token_count
             final_usage['candidates'] = chunk.usage_metadata.candidates_token_count
-        
+            final_usage['US_dollar'] = count_money(final_usage['input'],final_usage['thoughts'],final_usage['candidates'],[0.5,3,3])
         for part in chunk.candidates[0].content.parts:
             if part.text is None:
                 continue
@@ -63,7 +63,11 @@ def generate_stream_with_parts(user_input: list,history, model="gemini-3-flash-p
     yield {"status":"usage","content":final_usage}
 
 
-
+def count_money(input_token,thought_token,candidate,price_list:list):
+    input_token = input_token or 0
+    thought_token = thought_token or 0
+    candidate = candidate or 0
+    return (input_token * price_list[0] + thought_token * price_list[1] + candidate * price_list[2]) / 1000000
 def generate_stream(user_input="你好",history:list = None):
 
     client = genai.Client()
@@ -98,7 +102,7 @@ def generate_stream(user_input="你好",history:list = None):
             final_usage['input'] = chunk.usage_metadata.prompt_token_count
             final_usage['thoughts'] = chunk.usage_metadata.thoughts_token_count
             final_usage['candidates'] = chunk.usage_metadata.candidates_token_count
-        
+            final_usage['money'] = count_money(final_usage['input'],final_usage['thoughts'],final_usage['candidates'],[0.5,3,3])
         for part in chunk.candidates[0].content.parts:
             if part.thought:
                 yield {"status":"thinking","content":part.text}
@@ -113,10 +117,7 @@ if __name__ == "__main__":
     part = []
     history = []
     part.extend([
-                types.Part.from_text(text="這圖在講啥"),
-                types.Part.from_uri(
-                    file_uri=uri
-                ),
+                types.Part.from_text(text="早安你好"),
             ])
     for message in generate_stream_with_parts(user_input=part,history=history):
         print(message['content'])
