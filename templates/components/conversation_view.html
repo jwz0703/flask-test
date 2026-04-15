@@ -101,13 +101,30 @@
             flex-direction: column;
             align-items: center;
         }
-        .thinking {
-            padding: 8px;
-            border:1px solid var(--primary-color);
+        details.thinking-zone {
+            width: 100%;
+            border: 1px solid var(--primary-color);
             border-radius: 16px;
-        }
-        .thinking-zone {
             margin-bottom: 4px;
+            padding: 8px 12px;
+        }
+        details.thinking-zone summary {
+            cursor: pointer;
+            color: var(--primary-color);
+            user-select: none;
+            font-size: 16px;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        details.thinking-zone summary::before {
+            content: "🫪";
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        details[open].thinking-zone summary::before {
+            transform: rotate(90deg);
         }
 </style>
 <h1 style="font-size: 1rem;">想作弊喔</h1>
@@ -124,7 +141,10 @@
 
 <button id="submitBtn" class="upload-click-btn">開始</button>
 <input type="file" id="fileInput" accept="image/*" style="display: none;" multiple>
-<div id="thinking-zone" class="thinking-zone"></div>
+<details id="thinking-zone" class="thinking-zone" style="display: none;">
+    <summary id="thinking-summary">思考過程</summary>
+    <div id="thinking" class="thinking"></div>
+</details>
 <div id="content" class="md-area"></div>
 <script>
     $ = id => document.getElementById(id);
@@ -169,25 +189,35 @@
     })
     async function uploadMultipleFiles(files){
         const formData = new FormData();
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
         for (const file of files){
             formData.append('images',file)
         }
         const extraMessage = $('extraMessage').value;
         formData.append('extraMessage',extraMessage);
+        if(urlParams.get('pro')){
+                $('submitBtn').innerText = "Pro mode";
+                formData.append('proMode',true);
+            } else {
+                formData.append('proMode',false);
+            }
         try {
             let text = "";
-            let thought = "";
+            let thought = "思考中...";
             let buffer = "";
-            const response = await fetch('/api/start-chat',{
+            let directURL = '/api/start-chat';
+            
+            
+            
+            
+            const response = await fetch(directURL,{
                 method :"POST",
                 body : formData
             });
 
             const reader = response.body.getReader();
-            const thinkingArea = document.createElement('div');
-            thinkingArea.className = "thinking";
-            thinkingArea.id = "thinking";
-            $('thinking-zone').appendChild(thinkingArea);
+            $('thinking-zone').style.display = "";
             decoder = new TextDecoder();
             while(true){
                 const {done, value} = await reader.read();

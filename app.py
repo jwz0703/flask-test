@@ -5,7 +5,7 @@ from services.sb import (
 )
 from google import genai
 from google.genai import types
-from services.gemini import format_history, generate_stream, generate_stream_with_parts
+from services.gemini import format_history,generate_stream_with_parts
 import json
 import time
 import mimetypes
@@ -31,7 +31,14 @@ def test():
 def chat():
     id = insert_conversation('新對話')
     extra_message = request.form.get('extraMessage','')
-    print(extra_message)
+    pro_mode = request.form.get('proMode', False)
+    print(f"pro mode {pro_mode}")
+    if pro_mode == "true":
+        print("Pro mode start")
+        model = "gemini-3.1-pro-preview"
+    else:
+        print("General mode start")
+        model = "gemini-3-flash-preview"
     files_data = []
     for file in request.files.getlist('images'):
         files_data.append({
@@ -43,6 +50,7 @@ def chat():
     history = []
     parts.append(types.Part.from_text(text=extra_message))
     def generate():
+
         yield json.dumps({"id":"status","content":id},ensure_ascii=False)  + "\n"
 
         for data in files_data:
@@ -52,10 +60,10 @@ def chat():
              
             yield json.dumps({"status":"file","content":url},ensure_ascii=False)  + "\n"
         try:
-            for message in generate_stream_with_parts(user_input=parts,history=history):
+            for message in generate_stream_with_parts(user_input=parts,history=history, model_name=model):
                 yield json.dumps(message,ensure_ascii=False) + "\n"
         except Exception as e:
-            print(f"api error{e}",ensure_ascii=False)
+            print(f"api error{e}")
             yield json.dumps({"status":"error","content":str(e)},ensure_ascii=False) + "\n"
         yield json.dumps({"status":"done","content":""},ensure_ascii=False) + "\n"
     return Response(stream_with_context(generate()),mimetype='application/x-ndjson')

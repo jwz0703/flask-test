@@ -102,7 +102,7 @@
       .md-body ol {
         font-size: 0.75rem;
         margin: 0 0 0.7rem;
-        padding-left: 1.6rem;
+        padding-left: 0.4rem;
       }
       .md-body li {
         font-size: 0.75rem;
@@ -170,17 +170,19 @@
         width: 100%;
         border-collapse: collapse;
         margin: 1.5rem 0;
-        font-size: 0.93rem;
+        font-size: 0.75rem;
         border-radius: 8px;
         overflow: hidden;
         box-shadow: 0 0 0 1px #e5e7eb;
       }
       .md-body thead tr {
-        background: #4f46e5;
-        color: #fff;
+        background: #4e46e501;
+        border : 1px solid var(--primary-color);
+        border-radius: 8px;
+        color: var(--primary-color);
       }
       .md-body thead th {
-        padding: 0.7rem 1rem;
+        padding: 0.4rem 0.5rem;
         text-align: left;
         font-weight: 600;
         font-family: 'Helvetica Neue', sans-serif;
