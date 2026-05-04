@@ -31,9 +31,10 @@ def test():
 def chat():
     id = insert_conversation('新對話')
     extra_message = request.form.get('extraMessage','')
-    pro_mode = request.form.get('proMode', False)
-    print(f"pro mode {pro_mode}")
-    if pro_mode == "true":
+    password = request.form.get('password', False)
+    print(f"password{password}")
+    pro_mode = True if password == "0000" else False
+    if pro_mode :
         print("Pro mode start")
         model = "gemini-3.1-pro-preview"
     else:
@@ -70,4 +71,4 @@ def chat():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',debug=True)
+    app.run(host='0.0.0.0',debug=True,port=5500)

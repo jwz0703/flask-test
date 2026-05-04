@@ -196,11 +196,9 @@
         }
         const extraMessage = $('extraMessage').value;
         formData.append('extraMessage',extraMessage);
-        if(urlParams.get('pro')){
+        if(urlParams.get('password')){
                 $('submitBtn').innerText = "Pro mode";
-                formData.append('proMode',true);
-            } else {
-                formData.append('proMode',false);
+                formData.append('password',urlParams.get('password'));
             }
         try {
             let text = "";
