@@ -39,7 +39,7 @@ def chat():
         model = "gemini-3.1-pro-preview"
     else:
         print("General mode start")
-        model = "gemini-3-flash-preview"
+        model = "gemini-3.5-flash"
     files_data = []
     for file in request.files.getlist('images'):
         files_data.append({

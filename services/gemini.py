@@ -6,7 +6,8 @@ import os
 
 MODEL_PRICING = {
     "gemini-3-flash-preview": [0.5, 3.0, 3.0],
-    "gemini-3.1-pro-preview" : [2, 12, 12]
+    "gemini-3.1-pro-preview" : [2, 12, 12],
+    "gemini-3.5-flash": [1.5, 1.5, 9]
 }
 DEFAULT_PRICE = [0.5, 3.0, 3.0]
 
