@@ -35,7 +35,7 @@ def generate_stream_with_parts(user_input: list,history, model_name="gemini-3-fl
             parts=user_input,
         ))
     contents = messages
-    tools = [types.Tool(googleSearch=types.GoogleSearch()),]
+    tools = []
     generate_content_config = types.GenerateContentConfig(
         thinking_config=types.ThinkingConfig(
             thinking_level="HIGH",
